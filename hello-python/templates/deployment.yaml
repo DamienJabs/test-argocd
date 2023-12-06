@@ -28,7 +28,7 @@ spec:
               name: super-secret
               key: secret
         - name: TOTO
-          value: monEnv
+          value: monEnv2
         ports:
         - containerPort: 8080
         volumeMounts:
