@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.pythonSimpleApp.appName }}-deployment
+  labels:
+    app: {{ .Values.pythonSimpleApp.appName }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.pythonSimpleApp.appName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.pythonSimpleApp.appName }}
+    spec:
+      containers:
+      - name: {{ .Values.pythonSimpleApp.appName }}
+        image: dam2803/{{ .Values.pythonSimpleApp.tag }}
+        imagePullPolicy: Always
+        {{ if .Values.pythonSimpleApp.resources }}
+        resources: {{ toYaml .Values.pythonSimpleApp.resources | nindent 10 }}
+        {{ end }}
+        env:
+        - name: SECRET
+          valueFrom:
+            secretKeyRef:
+              name: super-secret
+              key: secret
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: /test-pd
+          name: task-pv-storage
+      imagePullSecrets:
+        - name: regcred
+      volumes:
+        - name: task-pv-storage
+          persistentVolumeClaim:
+            claimName: task-pv-claim
